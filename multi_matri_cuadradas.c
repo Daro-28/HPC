@@ -6,7 +6,8 @@
 /**
  * Multiplicacion de Matrices Cuadradas
  * Medicion de Wall Clock Time vs CPU Time
- * Uso: ./matmul <N>
+ * Para ejecutar en terminal: gcc -O0 -Wall -Wextra multi_matri_cuadradas.c -o multi_matri_cuadradas
+>> ./multi_matri_cuadradas 1000
  */
 int main(int argc, char *argv[]) {
     int n;
