@@ -1,16 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>     // clock(), time(), struct timespec
-#include <errno.h>    // errno (para strtoul)
-#include <stdint.h>   // uint32_t, uint64_t
+#include <time.h>    // clock(), time(), struct timespec
+#include <errno.h>   // errno (para strtoul)
+#include <stdint.h>  // uint32_t, uint64_t
 #include <inttypes.h> // PRIu32 (opcional para prints de uint32_t)
 
 /**
  * Multiplicacion de Matrices Cuadradas
  * Medicion de Wall Clock Time vs CPU Time
- * Para ejecutar en terminal:
-    gcc -std=c11 -O0 -Wall -Wextra multi_matri_cuadradas.c -o multi_matri_cuadradas
-    ./multi_matri_cuadradas 1000
+ * Para ejecutar en terminal: 
+gcc -std=c11 -O0 -Wall -Wextra multi_matri_cuadradas_rango_1036_sinsigno.c -o multi_matri_cuadradas_rango_1036_sinsigno
+
+luego
+
+./multi_matri_cuadradas_rango_1036_sinsigno 1000
  */
 int main(int argc, char *argv[]) {
     /* 
@@ -78,17 +81,19 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /* Nota:
-       - Aquí NO buscamos llegar al límite de 32 bits; el rango es pequeño.
-       - Rango de 10 significa 10 valores: 0..9 (rand()%10).
-    */
+    /*Límite de un entero de 32 bits SIN SIGNO = 4.294'967.295
 
-    // 3. Llenado aleatorio (solo positivos: 0..9)
+    con un rango de hasta 1036 (0 a 1036)  -> 1036*1036 = 1,073,296
+
+    Con n = 4000
+    4000 * 1'073.296 = 4.293'184.000
+    */
+    // 3. Llenado aleatorio (solo positivos: 0..1036)
     srand((unsigned)time(NULL));
     for (size_t i = 0; i < n; i++) {
         for (size_t j = 0; j < n; j++) {
-            A[i][j] = (uint32_t)(rand() % 10);  // 0..9
-            B[i][j] = (uint32_t)(rand() % 10);  // 0..9
+            A[i][j] = (uint32_t)(rand() % 1037);  // 0..1036
+            B[i][j] = (uint32_t)(rand() % 1037);  // 0..1036
             C[i][j] = 0u;
         }
     }
@@ -102,12 +107,13 @@ int main(int argc, char *argv[]) {
     // 4. Algoritmo Secuencial O(n^3)
     for (size_t i = 0; i < n; i++) {
         for (size_t j = 0; j < n; j++) {
-            // Acumulador de 64 bits para evitar overflow intermedio
+            // Usamos acumulador sin signo de 64 bits para evitar overflow intermedio.
+            // Luego se almacena en uint32_t (si excede 2^32-1, se trunca módulo 2^32).
             uint64_t sum = 0ULL;
             for (size_t k = 0; k < n; k++) {
                 sum += (uint64_t)A[i][k] * (uint64_t)B[k][j];
             }
-            C[i][j] = (uint32_t)sum; // cabe sobrado con rango 0..9, pero se mantiene el patrón
+            C[i][j] = (uint32_t)sum;
         }
     }
 
